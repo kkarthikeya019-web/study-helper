@@ -1,0 +1,313 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>EduPulse Max // Full Suite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        window.MathJax = { tex: { inlineMath: [['$', '$']] } };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        :root { --accent: #6366f1; }
+        body { background: #020617; color: #f1f5f9; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; overflow-x: hidden; }
+        .glass { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        
+        #boot-layer { position: fixed; inset: 0; z-index: 1000; background: #020617; display: flex; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
+        
+        #main-app { display: none; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+
+        /* Step Card Styling */
+        .step-card { background: rgba(255,255,255,0.03); border-radius: 1rem; padding: 12px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.05); text-align: left; }
+        .step-num { background: var(--accent); color: white; width: 18px; height: 18px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; margin-right: 8px; }
+
+        /* Flashcard Flip Animation */
+        .flashcard-container { perspective: 1000px; height: 250px; cursor: pointer; }
+        .flashcard-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; }
+        .flashcard-inner.is-flipped { transform: rotateY(180deg); }
+        .flashcard-front, .flashcard-back { 
+            position: absolute; width: 100%; height: 100%; backface-visibility: hidden; 
+            display: flex; align-items: center; justify-content: center; text-align: center; 
+            padding: 20px; border-radius: 2rem; border: 1px solid rgba(255,255,255,0.1);
+        }
+        .flashcard-back { transform: rotateY(180deg); background: rgba(99, 102, 241, 0.1); }
+
+        /* Quiz Button States */
+        .quiz-opt { width: 100%; text-align: left; padding: 15px; border-radius: 1rem; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.1); transition: all 0.2s; background: rgba(255,255,255,0.02); color: #cbd5e1; }
+        .quiz-opt.correct { background: #10b98144; border-color: #10b981; color: white; font-weight: bold; }
+        .quiz-opt.wrong { background: #f43f5e44; border-color: #f43f5e; color: white; }
+
+        .mode-btn { padding: 8px 16px; border-radius: 100px; font-size: 10px; font-weight: 800; text-transform: uppercase; transition: all 0.2s; border: 1px solid rgba(255,255,255,0.1); }
+        .mode-btn.active { background: var(--accent); color: white; border-color: transparent; }
+    </style>
+</head>
+<body>
+
+    <!-- BOOT SCREEN -->
+    <div id="boot-layer">
+        <div class="max-w-md w-full glass p-6 md:p-8 rounded-[2.5rem] text-center shadow-2xl my-auto">
+            <div class="w-14 h-14 bg-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl">
+                <i class="fas fa-rocket text-white text-xl"></i>
+            </div>
+            <h1 class="text-2xl font-black mb-1 tracking-tight">EDUPULSE ULTIMATE</h1>
+            
+            <!-- GUIDED STEPS SECTION -->
+            <div class="mt-6 mb-6">
+                <p class="text-[10px] font-black uppercase text-indigo-400 tracking-widest mb-3 text-left">How to get your API Key:</p>
+                
+                <div class="step-card">
+                    <span class="step-num">1</span>
+                    <span class="text-[11px] text-slate-300">Visit <b>aistudio.google.com</b></span>
+                </div>
+                <div class="step-card">
+                    <span class="step-num">2</span>
+                    <span class="text-[11px] text-slate-300">Login with your Google Account</span>
+                </div>
+                <div class="step-card">
+                    <span class="step-num">3</span>
+                    <span class="text-[11px] text-slate-300">Click <b>"Get API Key"</b> & then <b>"Create API Key"</b></span>
+                </div>
+                <div class="step-card">
+                    <span class="step-num">4</span>
+                    <span class="text-[11px] text-slate-300">Copy the code and paste it below</span>
+                </div>
+            </div>
+            
+            <input type="password" id="apiKeyInput" placeholder="Paste Gemini API Key Here..." 
+                   class="w-full bg-slate-900 border border-slate-700 rounded-2xl px-5 py-4 mb-3 text-white text-sm outline-none focus:border-indigo-500 transition-colors">
+            
+            <div class="flex items-center gap-2 mb-6 px-2">
+                <input type="checkbox" id="saveKey" class="w-4 h-4 rounded border-slate-700 bg-slate-900">
+                <label for="saveKey" class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Remember key on this device</label>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="boot(9)" class="bg-indigo-600 text-white font-black py-4 rounded-2xl active:scale-95 transition-all shadow-lg shadow-indigo-500/20">Class 9</button>
+                <button onclick="boot(10)" class="bg-indigo-600 text-white font-black py-4 rounded-2xl active:scale-95 transition-all shadow-lg shadow-indigo-500/20">Class 10</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP -->
+    <div id="main-app">
+        <nav class="p-4 sticky top-0 z-50">
+            <div class="max-w-4xl mx-auto glass rounded-2xl p-2 flex items-center justify-between shadow-xl">
+                <div class="flex gap-1">
+                    <button onclick="setMode('study')" id="btn-study" class="mode-btn active">Study</button>
+                    <button onclick="setMode('quiz')" id="btn-quiz" class="mode-btn">Quiz</button>
+                    <button onclick="setMode('cards')" id="btn-cards" class="mode-btn">Cards</button>
+                </div>
+                <button onclick="logout()" class="w-8 h-8 flex items-center justify-center text-slate-500 active:text-white"><i class="fas fa-power-off text-sm"></i></button>
+            </div>
+        </nav>
+
+        <main class="max-w-3xl mx-auto px-4 pb-20">
+            <div class="mt-4 mb-6">
+                <h1 id="mode-display" class="text-3xl font-black text-white tracking-tighter">Study Mode</h1>
+                <p id="mode-desc" class="text-slate-500 text-xs">Full curriculum notes with smart formatting.</p>
+            </div>
+
+            <!-- Subject Bar -->
+            <div class="overflow-x-auto flex gap-2 pb-4 no-scrollbar">
+                <div onclick="pickSub('Maths', '#6366f1')" class="subject-chip glass border-indigo-500/40 font-bold text-indigo-400">MATHS</div>
+                <div onclick="pickSub('Physics', '#3b82f6')" class="subject-chip glass border-blue-500/40 font-bold text-blue-400">PHYSICS</div>
+                <div onclick="pickSub('Chemistry', '#10b981')" class="subject-chip glass border-emerald-500/40 font-bold text-emerald-400">CHEMISTRY</div>
+                <div onclick="pickSub('History', '#f59e0b')" class="subject-chip glass border-amber-500/40 font-bold text-amber-400">HISTORY</div>
+                <div onclick="pickSub('Civics', '#8b5cf6')" class="subject-chip glass border-purple-500/40 font-bold text-purple-400">CIVICS</div>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="glass p-2 rounded-full flex items-center mb-10 shadow-lg border-white/5">
+                <input type="text" id="userInput" class="w-full bg-transparent px-5 py-2 outline-none text-sm text-white" placeholder="Enter topic name (e.g. Newton's Laws)...">
+                <button onclick="generate()" id="goBtn" class="bg-indigo-600 text-white px-8 py-3 rounded-full font-black text-[10px] tracking-widest active:scale-90 transition-all shadow-lg shadow-indigo-500/20">GENERATE</button>
+            </div>
+
+            <!-- Content Area -->
+            <div id="output-area" class="hidden">
+                <div id="loader" class="hidden text-center py-20">
+                    <div class="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest animate-pulse">Consulting AI Teacher...</span>
+                </div>
+                <div id="content-canvas" class="hidden">
+                    <!-- Dynamic Content Injected Here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let API_KEY = "";
+        let GRADE = "";
+        let CURRENT_MODE = "study";
+
+        // Check if key is already saved in localStorage
+        window.onload = () => {
+            const savedKey = localStorage.getItem('edu_pulse_key');
+            if(savedKey) {
+                document.getElementById('apiKeyInput').value = savedKey;
+                document.getElementById('saveKey').checked = true;
+            }
+        };
+
+        function boot(g) {
+            const inputKey = document.getElementById('apiKeyInput').value.trim();
+            const shouldSave = document.getElementById('saveKey').checked;
+
+            if(!inputKey) return alert("Please enter your API Key first.");
+            
+            API_KEY = inputKey;
+            GRADE = g;
+
+            if(shouldSave) localStorage.setItem('edu_pulse_key', inputKey);
+            else localStorage.removeItem('edu_pulse_key');
+
+            document.getElementById('boot-layer').style.display = 'none';
+            document.getElementById('main-app').style.display = 'block';
+        }
+
+        function logout() {
+            document.getElementById('boot-layer').style.display = 'flex';
+            document.getElementById('main-app').style.display = 'none';
+        }
+
+        function setMode(m) {
+            CURRENT_MODE = m;
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`btn-${m}`).classList.add('active');
+            
+            const display = document.getElementById('mode-display');
+            const desc = document.getElementById('mode-desc');
+            
+            if(m === 'study') { display.innerText = "Study Mode"; desc.innerText = "Textbook-style notes with LaTeX support."; }
+            if(m === 'quiz') { display.innerText = "Quiz Mode"; desc.innerText = "Practice MCQs with instant feedback."; }
+            if(m === 'cards') { display.innerText = "Flashcards"; desc.innerText = "Flip-based memorization cards."; }
+            
+            document.getElementById('output-area').classList.add('hidden');
+        }
+
+        function pickSub(s, c) {
+            document.documentElement.style.setProperty('--accent', c);
+            document.getElementById('userInput').value = s + ": ";
+        }
+
+        async function generate() {
+            const topic = document.getElementById('userInput').value;
+            if(!topic) return;
+
+            const area = document.getElementById('output-area');
+            const loader = document.getElementById('loader');
+            const canvas = document.getElementById('content-canvas');
+            
+            area.classList.remove('hidden');
+            loader.classList.remove('hidden');
+            canvas.classList.add('hidden');
+
+            let prompt = "";
+            if(CURRENT_MODE === 'study') {
+                prompt = `Detailed Class ${GRADE} notes for ${topic}. Use LaTeX $...$ for all math/science. Use H2 for subheadings. Use bullet points for key facts.`;
+            } else if(CURRENT_MODE === 'quiz') {
+                prompt = `Generate 4 MCQs for Class ${GRADE} on ${topic}. Format exactly: Q: question | A: opt1 | B: opt2 | C: opt3 | D: opt4 | Correct: Letter. Use LaTeX.`;
+            } else if(CURRENT_MODE === 'cards') {
+                prompt = `Generate 4 Flashcards for Class ${GRADE} on ${topic}. Format exactly: F: Front text | B: Back text. Use LaTeX.`;
+            }
+
+            try {
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                });
+                const data = await res.json();
+                const raw = data.candidates[0].content.parts[0].text;
+
+                render(raw);
+                
+                loader.classList.add('hidden');
+                canvas.classList.remove('hidden');
+                if(window.MathJax) MathJax.typesetPromise();
+            } catch(e) {
+                alert("API Error. Make sure your key is active.");
+                loader.classList.add('hidden');
+            }
+        }
+
+        function render(raw) {
+            const canvas = document.getElementById('content-canvas');
+            canvas.innerHTML = "";
+
+            if(CURRENT_MODE === 'study') {
+                const div = document.createElement('div');
+                div.className = "glass p-6 rounded-[2rem] prose prose-invert max-w-none text-slate-300 shadow-xl border-white/5";
+                div.innerHTML = raw.replace(/\n/g, '<br>').replace(/^## (.*$)/gim, '<h2 class="text-indigo-400 font-black tracking-tight mt-6">$1</h2>').replace(/\*\*(.*?)\*\*/g, '<strong class="text-white">$1</strong>');
+                canvas.appendChild(div);
+            } 
+            else if(CURRENT_MODE === 'quiz') {
+                const lines = raw.split('\n').filter(l => l.includes('|'));
+                lines.forEach(line => {
+                    const parts = line.split('|').map(p => p.trim());
+                    const qText = parts[0].replace('Q:', '');
+                    const options = [parts[1], parts[2], parts[3], parts[4]];
+                    const correct = parts[5].replace('Correct:', '').trim();
+
+                    const qDiv = document.createElement('div');
+                    qDiv.className = "glass p-6 rounded-[2rem] mb-6 border-white/5 shadow-lg";
+                    qDiv.innerHTML = `<p class="font-bold mb-5 text-white text-lg leading-snug">${qText}</p>`;
+                    
+                    options.forEach(opt => {
+                        const letter = opt.split(':')[0].trim();
+                        const btn = document.createElement('button');
+                        btn.className = "quiz-opt";
+                        btn.innerText = opt;
+                        btn.onclick = () => {
+                            if(letter === correct) {
+                                btn.classList.add('correct');
+                                btn.innerHTML += ' <i class="fas fa-check-circle ml-2"></i>';
+                            } else {
+                                btn.classList.add('wrong');
+                                btn.innerHTML += ' <i class="fas fa-times-circle ml-2"></i>';
+                            }
+                        };
+                        qDiv.appendChild(btn);
+                    });
+                    canvas.appendChild(qDiv);
+                });
+            }
+            else if(CURRENT_MODE === 'cards') {
+                const lines = raw.split('\n').filter(l => l.includes('|'));
+                lines.forEach(line => {
+                    const parts = line.split('|');
+                    const front = parts[0].replace('F:', '');
+                    const back = parts[1].replace('B:', '');
+
+                    const card = document.createElement('div');
+                    card.className = "flashcard-container mb-6";
+                    card.innerHTML = `
+                        <div class="flashcard-inner" onclick="this.classList.toggle('is-flipped')">
+                            <div class="flashcard-front glass shadow-xl border-white/5">
+                                <p class="text-sm font-bold text-white">${front}</p>
+                                <div class="absolute bottom-6 flex items-center gap-2 text-[8px] font-black tracking-[0.2em] text-slate-500 uppercase">
+                                    <i class="fas fa-redo"></i> Tap to flip
+                                </div>
+                            </div>
+                            <div class="flashcard-back glass shadow-xl border-indigo-500/20">
+                                <p class="text-sm text-slate-200">${back}</p>
+                            </div>
+                        </div>
+                    `;
+                    canvas.appendChild(card);
+                });
+            }
+        }
+    </script>
+</body>
+</html>
+
+
